@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,9 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ma.ac.ena.entities.Employee;
 import ma.ac.ena.entities.User;
+import ma.ac.ena.services.EmployeeService;
 import ma.ac.ena.services.UserService;
 import ma.ac.ena.services.UsersRolesService;
+import ma.ac.ena.wrapper.Documentwrapper;
 
 @RestController
 public class UserController {
@@ -30,6 +34,11 @@ public class UserController {
 	private UserService userService;
 	@Autowired
 	private UsersRolesService usersRolesService;
+	@Autowired
+	private EmployeeService employeeService ;
+	@Autowired
+	private HttpSession session ; 
+
 
 	@PostMapping("/users")
 	public User saveUser(@RequestBody User user) {
@@ -105,5 +114,37 @@ public class UserController {
 		 */
 
 	}
+	
+	
+	
+
+	
+	@GetMapping(path="/simple/envoie")
+	public String employeeToEmployee(ModelMap modelMap , HttpSession session  ) {
+		String username = ( (User ) session.getAttribute("user") ) .getUsername() ; 
+		List<Employee> employees = employeeService.getAllUsersExeptMe(username) ; 
+
+		modelMap.addAttribute("allEmployees", employees) ; 
+		modelMap.addAttribute("documentWrapper" , new Documentwrapper()) ; 
+
+		return "envoieForm" ; 
+		
+	}
+	
+	
+	@GetMapping(path="/groupe/envoie")
+	public String employeeToGroupe(ModelMap modelMap , HttpSession session  ) {
+		String username = ( (User ) session.getAttribute("user") ) .getUsername() ; 
+		List<Employee> employees = employeeService.getAllUsersExeptMe(username) ; 
+		
+		modelMap.addAttribute("allEmployees", employees.toArray()) ; 
+		modelMap.addAttribute("documentWrapper" , new Documentwrapper()) ; 
+
+		return "envoieGroupe" ; 
+		
+	}
+	
+
+	
 
 }
